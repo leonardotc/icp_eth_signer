@@ -1,0 +1,12 @@
+{
+  "canisters": {
+    "signer_backend": {
+      "main": "src/signer_backend/src/index.ts",
+      "type": "azle",
+      "candid_gen": "automatic",
+      "custom": {
+        "experimental": true
+      }
+    }
+  }
+}
