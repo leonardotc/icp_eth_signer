@@ -1,4 +1,0 @@
-service: () -> {
-    address: () -> (text) query;
-    update: () -> ();
-}
