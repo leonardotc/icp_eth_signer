@@ -1,14 +1,36 @@
-// import { text, query, update, Void, serialize } from 'azle/experimental'
-import { EcdsaPublicKeyResult } from 'azle/canisters/management'
-import createKeccakHash from 'keccak'
+import { EcdsaPublicKeyResult, SignWithEcdsaResult } from 'azle/canisters/management'
 import { query, IDL, update } from 'azle'
 import { serialize } from 'azle/experimental'
+import { toBytes, toHex, Hex, Address } from 'viem'
+import { publicKeyToAddress } from 'viem/accounts'
 
-let publicKey: Uint8Array
+const KEY_NAME = 'dfx_test_key'
 
-export default class Canister{
+let publicKey: Address
+
+export default class Canister {
+    @update([IDL.Text], IDL.Text)
+    async sign(message: string): Promise<string> {
+        const rawResponse = await fetch('icp://aaaaa-aa/sign_with_ecdsa', {
+            body: serialize({
+                args: [
+                    {
+                        message_hash: toBytes(message as Hex),
+                        derivation_path: [],
+                        key_id: {
+                            curve: { secp256k1: null },
+                            name: KEY_NAME
+                        }
+                    }
+                ]
+            })
+        })
+        const response: SignWithEcdsaResult = await rawResponse.json();
+        return toHex(response.signature)
+    }
+
     @update([])
-    async update(): Promise<void> {
+    async updateAddress(): Promise<void> {
         const rawResponse = await fetch('icp://aaaaa-aa/ecdsa_public_key', {
             body: serialize({
                 args: [
@@ -17,19 +39,20 @@ export default class Canister{
                         derivation_path: [],
                         key_id: {
                             curve: { secp256k1: null },
-                            name: 'dfx_test_key'
+                            name: KEY_NAME
                         }
                     }
                 ]
             })
         })
         const response: EcdsaPublicKeyResult = await rawResponse.json();
-        publicKey = response.public_key
+        publicKey = toHex(response.public_key)
     }
 
     @query([], IDL.Text)
     async address(): Promise<string> {
         // Verify costs, its ugly like this because I am assuming update is paid while query aint.
-        return `0x${createKeccakHash('keccak256').update(Buffer.from(publicKey)).digest('hex').slice(-40)}`
+        // return `0x${createKeccakHash('keccak256').update(Buffer.from(publicKey)).digest('hex').slice(-40)}`
+        return publicKeyToAddress(publicKey)
     }
 }

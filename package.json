@@ -19,6 +19,7 @@
     "@types/keccak": "^3.0.4"
   },
   "dependencies": {
+    "ethereumjs-util": "^7.1.5",
     "viem": "^2.21.6"
   }
 }
