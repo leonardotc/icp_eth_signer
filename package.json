@@ -17,5 +17,8 @@
   ],
   "devDependencies": {
     "@types/keccak": "^3.0.4"
+  },
+  "dependencies": {
+    "viem": "^2.21.6"
   }
 }
