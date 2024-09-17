@@ -10,12 +10,14 @@ import { keccak256,
 } from 'viem'
 import { sepolia } from 'viem/chains'
 
+import { DEPLOY_PK, OWNER_PK } from './pk'
+
 const deploy = {
-  pk: '0xc9af3645e4f775a3622cfbd5691fe7a83a94b1a6fe7b4538a10cdb82f8d5f20c',
+  pk: DEPLOY_PK,
   address: '0x746519355E8C476740c7FC82C178b9063a2987C8'
 }
 const owner = {
-  pk: '0x5c4d104be705122b09c9be39fe89ae8e5ef70be64734b6a0b6d03dbfd80c992d',
+  pk: OWNER_PK,
   address: '0x3Ef0b1Cb40A76Dbb61b3becF0c7a1017722270ee'
 }
 const canister = {
@@ -42,15 +44,18 @@ const wallet = createWalletClient({
 // const hash = keccak256(serialized)
 // console.log('hash: ', hash)
 
-const otherHash = '0x2ab35b8f4a6947eea8c237cabc519f1e6fdfe225ad0f313459b96fc8c3ce6a99'
+const otherHash = '0x529e2a66bf497b5c2679e03502215927fb2d980943327f0e8992036e0562cd5b'
 const hashBytes = toBytes(otherHash)
 console.log('bytes: ', hashBytes.length)
-const signature = '0xadd3004e716bdc938f813880faa43d28284d5bc210c9aeb5696b8353fa46d4da7deb88e8699b9df19b76420cda8a86b887990bae622268ddd1af7c5973da36c0'
+const signature = '0x986c75241499349831f226ccaae1d1cda92ece5ac45bc85daa250036c565f44301f2ca6404add4257eea50601d40c08e152137f8a017fd58a68b5eaf22436873'
 const sigBytes = toBytes(signature)
 console.log('bytes: ', sigBytes.length)
 
-const r = toHex(sigBytes.slice(0, 31))
-const s = toHex(sigBytes.slice(32, 63))
+const rBytes = sigBytes.slice(0, 32)
+const sBytes = sigBytes.slice(32, 64)
+
+const r = toHex(rBytes)
+const s = toHex(sBytes)
 
 const possibleVs = [27n, 28n]
 
