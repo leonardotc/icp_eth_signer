@@ -1,5 +1,5 @@
-import { serialize, Some, nat64 } from 'azle/experimental'
-import { id, Principal, IDL } from 'azle'
+import { serialize } from 'azle/experimental'
+import { id, Principal } from 'azle'
 import { HttpResponse } from 'azle/canisters/management'
 
 const doPost = async (url: string, body: string): Promise<string> => {
