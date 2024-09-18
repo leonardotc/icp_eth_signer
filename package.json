@@ -16,6 +16,17 @@
     "src/signer_backend"
   ],
   "devDependencies": {
-    "@types/keccak": "^3.0.4"
+    "@dfinity/agent": "^0.21.4",
+    "@eslint/js": "^9.10.0",
+    "@types/elliptic": "^6.4.18",
+    "eslint": "^9.10.0",
+    "globals": "^15.9.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.2.2",
+    "typescript-eslint": "^8.6.0"
+  },
+  "dependencies": {
+    "elliptic": "^6.5.7",
+    "viem": "^2.21.6"
   }
 }
