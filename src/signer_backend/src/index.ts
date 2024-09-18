@@ -1,60 +1,47 @@
-import { EcdsaPublicKeyResult, SignWithEcdsaResult } from 'azle/canisters/management'
-import { query, IDL, update, caller } from 'azle'
-import { serialize } from 'azle/experimental'
-import { toBytes, toHex, Hex, Address } from 'viem'
-import { publicKeyToAddress } from 'viem/accounts'
-
-const KEY_NAME = 'dfx_test_key'
+import { query, IDL, update } from 'azle'
+import { toHex, Hex, Address } from 'viem'
+import { requestPublicKey } from './signatures'
+import { createAccount } from './createAccount'
+import { createWalletClient, createPublicClient } from 'viem'
+import { sepolia } from 'viem/chains'
+import { createTransport } from './eip1193'
+import { HttpResponse, HttpTransformArgs } from 'azle/canisters/management'
 
 let publicKey: Address
 
 export default class Canister {
-    @update([IDL.Text], IDL.Text)
-    async sign(message: string): Promise<string> {
-        const path = caller().toUint8Array()
-        const rawResponse = await fetch('icp://aaaaa-aa/sign_with_ecdsa', {
-            body: serialize({
-                args: [
-                    {
-                        message_hash: toBytes(message as Hex),
-                        derivation_path: [path],
-                        key_id: {
-                            curve: { secp256k1: null },
-                            name: KEY_NAME
-                        }
-                    }
-                ]
-            })
-        })
-        const response: SignWithEcdsaResult = await rawResponse.json();
-        return toHex(response.signature)
-    }
+  @update([IDL.Text, IDL.Text, IDL.Int64], IDL.Text)
+  async sendTx(to: string, data: string, value: bigint): Promise<string> {
+    const client = createWalletClient({
+      transport: createTransport(),
+      chain: sepolia,
+      account: createAccount()
+    })
 
-    @update([])
-    async updateAddress(): Promise<void> {
-        const path = caller().toUint8Array()
-        const rawResponse = await fetch('icp://aaaaa-aa/ecdsa_public_key', {
-            body: serialize({
-                args: [
-                    {
-                        canister_id: [],
-                        derivation_path: [path],
-                        key_id: {
-                            curve: { secp256k1: null },
-                            name: KEY_NAME
-                        }
-                    }
-                ]
-            })
-        })
-        const response: EcdsaPublicKeyResult = await rawResponse.json();
-        publicKey = toHex(response.public_key)
-    }
+    return await client.sendTransaction({
+      to: to as Hex,
+      data: data as Hex,
+      value
+    })
+  }
 
-    @query([], IDL.Text)
-    async address(): Promise<string> {
-        // Verify costs, its ugly like this because I am assuming update is paid while query aint.
-        // return `0x${createKeccakHash('keccak256').update(Buffer.from(publicKey)).digest('hex').slice(-40)}`
-        return publicKeyToAddress(publicKey)
+  @update([])
+  async updateAddress(): Promise<void> {
+    publicKey = toHex(await requestPublicKey())
+  }
+
+  @query([], IDL.Text)
+  async address(): Promise<string> {
+    // Verify costs, its ugly like this because I am assuming update is paid while query aint.
+    // return `0x${createKeccakHash('keccak256').update(Buffer.from(publicKey)).digest('hex').slice(-40)}`
+    return publicKey
+  }
+
+  @query([HttpTransformArgs], HttpResponse)
+  ethTransform(args: HttpTransformArgs): HttpResponse {
+    return {
+      ...args.response,
+      headers: []
     }
+  }
 }

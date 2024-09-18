@@ -16,7 +16,11 @@
     "src/signer_backend"
   ],
   "devDependencies": {
-    "@types/keccak": "^3.0.4"
+    "@types/keccak": "^3.0.4",
+    "@dfinity/agent": "^0.21.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.2.2"
+
   },
   "dependencies": {
     "ethereumjs-util": "^7.1.5",

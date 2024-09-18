@@ -1,0 +1,1 @@
+export const KEY_NAME = 'dfx_test_key'
