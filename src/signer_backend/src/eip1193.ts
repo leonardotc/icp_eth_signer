@@ -15,7 +15,8 @@ const createTransport = () => {
   const url = sepolia.rpcUrls.default.http[0]
   return custom({
     async request({ method, params }) {
-      const res = await doPost(url, JSON.stringify(jsonRpc(method, params)))
+      const payload = JSON.stringify(jsonRpc(method, params))
+      const res = await doPost(url, payload)
       return JSON.parse(res).result
     }
   })
