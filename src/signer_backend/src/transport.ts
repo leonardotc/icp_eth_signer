@@ -8,7 +8,7 @@ const doPost = async (url: string, body: string): Promise<string> => {
       args: [
         {
           url,
-          max_response_bytes: [2_000n],
+          max_response_bytes: [20_000n],
           method: { post: null },
           headers: [{
             name: 'Content-Type',
