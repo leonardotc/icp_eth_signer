@@ -34,7 +34,7 @@ const sign = async (hash: Hash, target: Address): Promise<{ r: Hex, s: Hex, v: b
   throw new Error('expected account could not be recovered')
 }
 
-export const createAccount = (address: Address): Account => {
+export const createAccount = (address: Address): Account<Address> => {
   return toAccount({
     address,
     async signMessage({ message }) {

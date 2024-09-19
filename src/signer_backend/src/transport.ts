@@ -1,8 +1,9 @@
 import { serialize } from 'azle/experimental'
-import { id, Principal } from 'azle'
+import { Principal } from 'azle'
 import { HttpResponse } from 'azle/canisters/management'
+import { TransformFunction } from './types'
 
-const doPost = async (url: string, body: string): Promise<string> => {
+const doPost = async (url: string, body: string, transform: TransformFunction): Promise<string> => {
   const rawResponse = await fetch('icp://aaaaa-aa/http_request', {
     body: serialize({
       args: [
@@ -16,7 +17,7 @@ const doPost = async (url: string, body: string): Promise<string> => {
           }],
           body: [new Uint8Array(Buffer.from(body, 'utf-8'))],
           transform: [{
-            function: [id(), 'ethTransform'] as [
+            function: [transform.target, transform.name] as [
               Principal,
               string
             ],
