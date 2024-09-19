@@ -1,5 +1,5 @@
-import { query, IDL, update } from 'azle'
-import { Hex, Address } from 'viem'
+import { query, IDL, update, init } from 'azle'
+import { Hex, Account, Address } from 'viem'
 import { requestPublicKey } from './signatures'
 import { createAccount } from './createAccount'
 import { createWalletClient } from 'viem'
@@ -8,7 +8,7 @@ import { createTransport } from './eip1193'
 import { HttpResponse, HttpTransformArgs } from 'azle/canisters/management'
 import { icpPubToAddress } from './icpPubToAddress'
 
-let address: Address
+let account: Account<Address>
 
 export default class Canister {
   @update([IDL.Text, IDL.Text, IDL.Int64], IDL.Text)
@@ -16,7 +16,7 @@ export default class Canister {
     const client = createWalletClient({
       transport: createTransport(),
       chain: sepolia,
-      account: createAccount(address)
+      account
     })
 
     return await client.sendTransaction({
@@ -28,18 +28,17 @@ export default class Canister {
 
   @update([])
   async updateAddress(): Promise<void> {
-    address = icpPubToAddress(await requestPublicKey())
+    const address = icpPubToAddress(await requestPublicKey())
+    account = createAccount(address)
   }
 
   @query([], IDL.Text)
   async address(): Promise<string> {
-    // Verify costs, its ugly like this because I am assuming update is paid while query aint.
-    // return `0x${createKeccakHash('keccak256').update(Buffer.from(publicKey)).digest('hex').slice(-40)}`
-    return address
+    return account.address
   }
 
   @query([HttpTransformArgs], HttpResponse)
-  ethTransform(args: HttpTransformArgs): HttpResponse {
+  rpcTransform(args: HttpTransformArgs): HttpResponse {
     return {
       ...args.response,
       headers: []

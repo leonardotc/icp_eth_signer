@@ -1,6 +1,7 @@
 import { custom } from 'viem'
 import { sepolia } from 'viem/chains'
 import { doPost } from './transport'
+import { id } from 'azle'
 
 const jsonRpc = (method: string, params: unknown[]) => {
   return {
@@ -16,7 +17,7 @@ const createTransport = () => {
   return custom({
     async request({ method, params }) {
       const payload = JSON.stringify(jsonRpc(method, params))
-      const res = await doPost(url, payload)
+      const res = await doPost(url, payload, { target: id(), name: 'rpcTransform'})
       return JSON.parse(res).result
     }
   })
